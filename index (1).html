@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Asal Şifre Avcıları - TYMM 6. Sınıf Matematik Oyunu</title>
+  <meta name="description" content="Türkiye Yüzyılı Maarif Modeli 6. sınıf matematik müfredatına uygun interaktif asal sayılar oyunu ve Eratosthenes süzgeci simülasyonu.">
+  <meta property="og:title" content="Asal Şifre Avcıları - TYMM 6. Sınıf Matematik Oyunu">
+  <meta property="og:description" content="Türkiye Yüzyılı Maarif Modeli 6. sınıf matematik müfredatına uygun interaktif asal sayılar oyunu ve Eratosthenes süzgeci simülasyonu.">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- FontAwesome İkon Kütüphanesi -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer">
+  
+  <!-- Google Fonts: Outfit ve Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@600;800&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            display: ['Outfit', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            primary: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            },
+            accent: {
+              gold: '#fbbf24',
+              emerald: '#10b981',
+              rose: '#f43f5e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    @keyframes primePulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 15px rgba(251, 191, 36, 0.4); }
+      50% { transform: scale(1.06); box-shadow: 0 0 25px rgba(251, 191, 36, 0.85); }
+    }
+    .prime-glow {
+      animation: primePulse 2s infinite ease-in-out;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-8px); }
+      40%, 80% { transform: translateX(8px); }
+    }
+    .shake-anim {
+      animation: shake 0.4s ease-in-out;
+    }
+  </style>
+<script src="/_aistudio-iframe.js?v=6634132a"></script></head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans flex flex-col justify-between selection:bg-amber-400 selection:text-slate-900">
+
+  <!-- ÜST BİLGİ VE NAVİGASYON BARI -->
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-amber-500/20 text-white text-lg font-black">
+          <i class="fa-solid fa-key"></i>
+        </div>
+        <div>
+          <h1 class="font-display font-extrabold text-lg sm:text-xl text-white tracking-tight leading-tight">
+            Asal Şifre Avcıları
+          </h1>
+          <p class="text-xs text-amber-400 font-medium">TYMM 6. Sınıf Matematik Modeli</p>
+        </div>
+      </div>
+
+      <!-- Sağ Taraf Kontroller: HTML İndir, Puan, Can, Ses -->
+      <div class="flex items-center gap-2 sm:gap-3 text-sm">
+        
+        <!-- OYUNUN HTML İNDİR BUTONU (ÜST BAR) -->
+        <button 
+          onclick="downloadGameHTML()" 
+          class="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-display font-extrabold text-xs sm:text-sm shadow-md shadow-amber-500/25 active:scale-95 transition-all cursor-pointer"
+          title="Oyunu tek parça index.html dosyası olarak bilgisayarına indir"
+        >
+          <i class="fa-solid fa-download"></i>
+          <span class="whitespace-nowrap font-black tracking-tight">index.html İndir</span>
+        </button>
+
+        <div id="topStats" class="hidden sm:flex items-center gap-4 bg-slate-800/80 px-3.5 py-1.5 rounded-lg border border-slate-700/60 font-mono">
+          <div class="flex items-center gap-1.5 text-amber-400">
+            <i class="fa-solid fa-trophy"></i>
+            <span id="headerScore" class="font-bold">0</span>
+          </div>
+          <div class="text-slate-600">|</div>
+          <div class="flex items-center gap-1 text-rose-400" id="headerHearts">
+            <i class="fa-solid fa-heart"></i>
+            <i class="fa-solid fa-heart"></i>
+            <i class="fa-solid fa-heart"></i>
+          </div>
+        </div>
+
+        <button id="soundToggleBtn" onclick="toggleSound()" class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 flex items-center justify-center text-slate-300 transition-colors" title="Sesi Aç/Kapat">
+          <i id="soundIcon" class="fa-solid fa-volume-high"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ANA OYUN KONTEYNERİ -->
+  <main class="max-w-6xl w-full mx-auto px-4 py-4 sm:py-6 flex-1 flex flex-col justify-center">
+
+    <!-- OYUNUN ÜZERİNDE DOĞRUDAN INDEX.HTML İNDİRME ŞERİDİ -->
+    <div class="w-full max-w-4xl mx-auto mb-5 bg-gradient-to-r from-slate-900 via-indigo-950/60 to-slate-900 border-2 border-amber-400/40 rounded-2xl p-3.5 sm:p-4 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-3.5 backdrop-blur">
+      <div class="flex items-center gap-3 text-xs text-slate-300 text-center sm:text-left">
+        <div class="w-11 h-11 rounded-xl bg-amber-500/20 border border-amber-400/40 text-amber-400 flex items-center justify-center shrink-0 text-lg shadow-md shadow-amber-500/10">
+          <i class="fa-solid fa-file-code"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2 justify-center sm:justify-start">
+            <span class="font-extrabold text-white text-sm sm:text-base">Tek Dosya Çevrimdışı Sürüm:</span>
+            <span class="px-2 py-0.5 rounded bg-amber-400/20 text-amber-300 font-mono text-[11px] font-bold border border-amber-400/30">index.html</span>
+          </div>
+          <span class="text-slate-400 text-xs">İnternet bağlantısı olmadan, akıllı tahtada veya tarayıcıda doğrudan çalıştırmak için tek dosya olarak indirebilirsiniz.</span>
+        </div>
+      </div>
+      
+      <button 
+        onclick="downloadGameHTML()" 
+        class="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-400 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-display font-black text-sm shadow-xl shadow-amber-500/30 active:scale-95 transition-all flex items-center justify-center gap-2.5 cursor-pointer shrink-0 border border-amber-200"
+      >
+        <i class="fa-solid fa-cloud-arrow-down text-base"></i>
+        <span class="whitespace-nowrap font-black tracking-wide">index.html İndir</span>
+      </button>
+    </div>
+
+    <!-- 1. GİRİŞ EKRANI -->
+    <section id="screenIntro" class="w-full max-w-2xl mx-auto my-auto py-4">
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+        
+        <div class="absolute -top-24 -right-24 w-60 h-60 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 -left-24 w-60 h-60 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="text-center mb-6">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-semibold mb-3">
+            <i class="fa-solid fa-shield-halved"></i> Beceri Temelli Matematik Macerası
+          </div>
+          <h2 class="text-2xl sm:text-4xl font-display font-black text-white tracking-tight mb-2">
+            Asal Şifre Avcıları'na Hoş Geldin!
+          </h2>
+          <p class="text-slate-400 text-sm sm:text-base max-w-lg mx-auto">
+            Türkiye Yüzyılı Maarif Modeli ile asal sayıların gizemini çöz, Eratosthenes süzgecini keşfet ve gizli şifre kilitlerini aç!
+          </p>
+        </div>
+
+        <div class="space-y-4 mb-6">
+          <div>
+            <label for="playerNameInput" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">
+              <i class="fa-solid fa-user-astronaut text-amber-400 mr-1.5"></i> Kaşif Adın veya Takma Adın
+            </label>
+            <input 
+              type="text" 
+              id="playerNameInput" 
+              placeholder="Örn: Zeynep veya Ali" 
+              maxlength="20"
+              class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white text-base focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 transition-all font-medium"
+              value="Kaşif"
+            >
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">
+              Avatarını Seç
+            </label>
+            <div class="grid grid-cols-5 gap-2" id="avatarSelector">
+              <button type="button" onclick="selectAvatar('🚀')" class="avatar-opt active p-3 text-2xl rounded-xl bg-slate-800 border-2 border-amber-400 hover:bg-slate-700 transition-all flex items-center justify-center">🚀</button>
+              <button type="button" onclick="selectAvatar('🦉')" class="avatar-opt p-3 text-2xl rounded-xl bg-slate-800 border-2 border-transparent hover:border-slate-600 hover:bg-slate-700 transition-all flex items-center justify-center">🦉</button>
+              <button type="button" onclick="selectAvatar('⚡')" class="avatar-opt p-3 text-2xl rounded-xl bg-slate-800 border-2 border-transparent hover:border-slate-600 hover:bg-slate-700 transition-all flex items-center justify-center">⚡</button>
+              <button type="button" onclick="selectAvatar('🛡️')" class="avatar-opt p-3 text-2xl rounded-xl bg-slate-800 border-2 border-transparent hover:border-slate-600 hover:bg-slate-700 transition-all flex items-center justify-center">🛡️</button>
+              <button type="button" onclick="selectAvatar('💎')" class="avatar-opt p-3 text-2xl rounded-xl bg-slate-800 border-2 border-transparent hover:border-slate-600 hover:bg-slate-700 transition-all flex items-center justify-center">💎</button>
+            </div>
+          </div>
+
+          <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-4 text-xs space-y-2 text-slate-300">
+            <div class="font-bold text-amber-400 flex items-center gap-1.5">
+              <i class="fa-solid fa-lightbulb"></i> TYMM 6. Sınıf Asal Bilgi Notu:
+            </div>
+            <ul class="list-disc list-inside space-y-1 text-slate-400">
+              <li><strong class="text-slate-200">Asal Sayı:</strong> Sadece 1'e ve kendisine bölünebilen, 1'den büyük sayılardır.</li>
+              <li><strong class="text-rose-300">1 Asal Değildir:</strong> Çünkü sadece tek bir çarpanı vardır (asal sayının tam 2 farklı çarpanı olmalıdır).</li>
+              <li><strong class="text-amber-300">2 Sayısı:</strong> En küçük asal sayıdır ve ÇİFT olan tek asal sayıdır!</li>
+              <li><strong class="text-indigo-300">Tuzak Sayılar:</strong> 91 ($7 \times 13$) ve 51 ($3 \times 17$) asal DEĞİLDİR!</li>
+            </ul>
+          </div>
+        </div>
+
+        <button 
+          onclick="startGame()"
+          class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-400 to-indigo-600 text-slate-950 font-display font-black text-lg shadow-xl shadow-amber-500/25 hover:opacity-95 transform active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <span>Maceraya Başla: Eratosthenes Süzgeci</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+    </section>
+
+    <!-- 2. BÖLÜM 1: ERATOSTHENES SÜZGECİ (1 - 50) -->
+    <section id="screenSieve" class="hidden w-full max-w-5xl mx-auto py-2">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+        <div>
+          <div class="inline-flex items-center gap-2 text-xs font-semibold text-amber-400 uppercase tracking-wider mb-1">
+            <i class="fa-solid fa-filter"></i> Bölüm 1: Keşif Laboratuvarı
+          </div>
+          <h2 class="text-xl sm:text-3xl font-display font-extrabold text-white">
+            Eratosthenes Süzgeci (1 - 50)
+          </h2>
+          <p class="text-slate-400 text-xs sm:text-sm">
+            M.Ö. 200'lü yıllarda yaşamış bilgin Eratosthenes gibi katları eleyerek asalları ortaya çıkar!
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2 flex-wrap">
+          <button 
+            id="btnAutoSieve"
+            onclick="toggleAutoSieve()" 
+            class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 shadow-lg shadow-indigo-600/20"
+          >
+            <i id="autoSieveIcon" class="fa-solid fa-play"></i>
+            <span id="autoSieveText">Otomatik Adımla</span>
+          </button>
+          
+          <button 
+            onclick="resetSieve()" 
+            class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs sm:text-sm font-semibold border border-slate-700 transition-all flex items-center gap-1.5"
+          >
+            <i class="fa-solid fa-rotate-left"></i> Sıfırla
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+        <div class="lg:col-span-8 bg-slate-900 border border-slate-800 rounded-3xl p-4 sm:p-5 shadow-xl">
+          <div class="flex items-center justify-between text-xs text-slate-400 mb-3 px-1">
+            <span><i class="fa-solid fa-hand-pointer text-amber-400 mr-1"></i> Sayılara tıklayarak veya adımları takip ederek ele</span>
+            <span id="sieveRemainingCount" class="font-mono text-amber-300 font-bold">Kalan: 50 Sayı</span>
+          </div>
+
+          <div id="sieveGrid" class="grid grid-cols-5 sm:grid-cols-10 gap-1.5 sm:gap-2"></div>
+
+          <div class="mt-4 pt-3 border-t border-slate-800/80 flex flex-wrap items-center gap-4 text-[11px] text-slate-400">
+            <div class="flex items-center gap-1.5">
+              <span class="w-3.5 h-3.5 rounded bg-slate-800 border border-slate-700"></span>
+              <span>Beklemede</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-3.5 h-3.5 rounded bg-slate-950 border border-rose-950 text-rose-500 flex items-center justify-center text-[9px] line-through">12</span>
+              <span>Elenmiş</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-3.5 h-3.5 rounded bg-amber-400 text-slate-950 font-bold flex items-center justify-center text-[9px]">3</span>
+              <span>Aktif Asal Kök</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-3.5 h-3.5 rounded bg-gradient-to-r from-amber-400 to-amber-500 shadow-sm shadow-amber-400/50"></span>
+              <span class="text-amber-300 font-semibold">15 Asal Sayı</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-4 space-y-4">
+          <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-xl">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-bold uppercase tracking-wider text-indigo-400">
+                <i class="fa-solid fa-graduation-cap mr-1"></i> TYMM Adım Kılavuzu
+              </span>
+              <span id="currentStepBadge" class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300">
+                Adım 1/5
+              </span>
+            </div>
+
+            <div id="stepExplanation" class="text-sm text-slate-300 min-h-[140px] flex flex-col justify-center space-y-2 leading-relaxed"></div>
+
+            <div class="mt-4 pt-4 border-t border-slate-800 space-y-2">
+              <button 
+                id="btnNextStep"
+                onclick="executeCurrentStep()" 
+                class="w-full py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20"
+              >
+                <span>Sıradaki Adımı Uygula</span>
+                <i class="fa-solid fa-forward-step"></i>
+              </button>
+
+              <div id="sieveCompletedActions" class="hidden space-y-2">
+                <div class="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 text-xs font-medium">
+                  <i class="fa-solid fa-circle-check mr-1"></i> Harika! 1-50 arasındaki 15 asal sayı başarıyla keşfedildi. (+300 Puan)
+                </div>
+                <button 
+                  onclick="goToGateGame()" 
+                  class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-indigo-600 text-white font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/25"
+                >
+                  <span>Bölüm 2'ye Geç: Asal Kapı Kilidi</span>
+                  <i class="fa-solid fa-door-open"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 text-xs">
+            <h4 class="font-bold text-slate-200 mb-2 flex items-center gap-1.5">
+              <i class="fa-solid fa-star text-amber-400"></i> 1-50 Arasındaki Asallar:
+            </h4>
+            <div id="primeTagsContainer" class="flex flex-wrap gap-1 text-[11px] font-mono text-slate-500">
+              <span>2</span>, <span>3</span>, <span>5</span>, <span>7</span>, <span>11</span>, <span>13</span>, <span>17</span>, <span>19</span>, <span>23</span>, <span>29</span>, <span>31</span>, <span>37</span>, <span>41</span>, <span>43</span>, <span>47</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 3. BÖLÜM 2: ASAL KAPI KİLİDİ -->
+    <section id="screenGate" class="hidden w-full max-w-3xl mx-auto py-2">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <span class="text-xs font-bold text-indigo-400 uppercase tracking-wider">
+            <i class="fa-solid fa-dungeon mr-1"></i> Bölüm 2: Hızlı Karar & Muhakeme
+          </span>
+          <h2 class="text-xl sm:text-2xl font-display font-extrabold text-white">
+            Asal Kapı Kilidi
+          </h2>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <div class="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl text-xs font-mono">
+            <span class="text-slate-400">Kapı: </span>
+            <span id="gateLevelDisplay" class="text-amber-400 font-bold">1 / 15</span>
+          </div>
+          <div class="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl text-xs font-mono flex items-center gap-1.5 text-rose-400">
+            <span id="gateHeartsDisplay">❤️❤️❤️</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="gateCard" class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-10 shadow-2xl relative text-center overflow-hidden">
+        
+        <div class="w-full bg-slate-950 rounded-full h-2 mb-6 overflow-hidden">
+          <div id="gateProgressBar" class="bg-gradient-to-r from-amber-400 to-indigo-500 h-full rounded-full transition-all duration-300" style="width: 6.66%;"></div>
+        </div>
+
+        <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center text-3xl shadow-inner">
+          <i id="gateLockIcon" class="fa-solid fa-lock"></i>
+        </div>
+
+        <p class="text-xs sm:text-sm font-semibold uppercase tracking-wider text-slate-400 mb-2">
+          GİZEMLİ KAPI SAYISI
+        </p>
+
+        <div id="targetNumber" class="text-6xl sm:text-8xl font-display font-black text-white tracking-tight mb-4 drop-shadow-md font-mono">
+          37
+        </div>
+
+        <p class="text-sm text-slate-300 mb-8 max-w-md mx-auto">
+          Bu sayı sadece 1'e ve kendisine mi bölünür? Kararını ver ve kilidi aç!
+        </p>
+
+        <div id="gateActionButtons" class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-md mx-auto">
+          <button 
+            onclick="makeDecision(true)"
+            class="py-4 px-6 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-display font-black text-lg shadow-xl shadow-emerald-600/25 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer border border-emerald-400/30"
+          >
+            <i class="fa-solid fa-check-circle"></i>
+            <span>ASAL SAYI</span>
+          </button>
+
+          <button 
+            onclick="makeDecision(false)"
+            class="py-4 px-6 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white font-display font-black text-lg shadow-xl shadow-rose-600/25 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer border border-rose-400/30"
+          >
+            <i class="fa-solid fa-times-circle"></i>
+            <span>ASAL DEĞİL</span>
+          </button>
+        </div>
+
+        <div id="gateFeedbackPanel" class="hidden mt-6 text-left max-w-lg mx-auto bg-slate-950 border rounded-2xl p-4 sm:p-5 transition-all">
+          <div class="flex items-center gap-2 mb-2">
+            <span id="feedbackStatusIcon" class="text-lg"></span>
+            <span id="feedbackStatusTitle" class="font-bold text-sm"></span>
+          </div>
+          <p id="feedbackExplanation" class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4"></p>
+          <button 
+            id="feedbackNextBtn"
+            onclick="nextGateQuestion()"
+            class="w-full py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm transition-all flex items-center justify-center gap-2"
+          >
+            <span>Sıradaki Kilit</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 4. SONUÇ VE ÖDÜL EKRANI -->
+    <section id="screenResult" class="hidden w-full max-w-2xl mx-auto py-4">
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden text-center">
+        
+        <div class="w-20 h-20 mx-auto mb-4 rounded-3xl bg-amber-500/20 border border-amber-500/30 text-amber-400 flex items-center justify-center text-4xl shadow-xl shadow-amber-500/10">
+          <i class="fa-solid fa-award"></i>
+        </div>
+
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold mb-2">
+          <i class="fa-solid fa-check"></i> Görev Başarıyla Tamamlandı!
+        </div>
+
+        <h2 class="text-2xl sm:text-4xl font-display font-black text-white mb-2">
+          Tebrikler, <span id="resultPlayerName" class="text-amber-400">Kaşif</span>!
+        </h2>
+        
+        <p id="resultFeedbackTitle" class="text-slate-300 text-sm max-w-md mx-auto mb-6">
+          Türkiye Yüzyılı Maarif Modeli Asal Sayılar macera yolculuğunu üstün başarıyla tamamladın!
+        </p>
+
+        <div class="grid grid-cols-3 gap-3 max-w-md mx-auto mb-6">
+          <div class="bg-slate-950 border border-slate-800 p-3 rounded-2xl">
+            <span class="block text-[11px] text-slate-400 font-semibold uppercase">Toplam Puan</span>
+            <span id="resultTotalScore" class="text-xl sm:text-2xl font-mono font-black text-amber-400">1450</span>
+          </div>
+          <div class="bg-slate-950 border border-slate-800 p-3 rounded-2xl">
+            <span class="block text-[11px] text-slate-400 font-semibold uppercase">Doğruluk</span>
+            <span id="resultAccuracy" class="text-xl sm:text-2xl font-mono font-black text-emerald-400">93%</span>
+          </div>
+          <div class="bg-slate-950 border border-slate-800 p-3 rounded-2xl">
+            <span class="block text-[11px] text-slate-400 font-semibold uppercase">Kalan Can</span>
+            <span id="resultHearts" class="text-xl sm:text-2xl font-mono font-black text-rose-400">3/3</span>
+          </div>
+        </div>
+
+        <div class="mb-8 text-left bg-slate-950/70 border border-slate-800 rounded-2xl p-4">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300 mb-3 flex items-center gap-2">
+            <i class="fa-solid fa-medal text-amber-400"></i> Kazanılan Beceri Rozetleri
+          </h3>
+          <div id="badgesContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs"></div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+          <button 
+            onclick="restartGame()" 
+            class="w-full sm:w-auto px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-display font-black text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-amber-500/20"
+          >
+            <i class="fa-solid fa-rotate-right"></i>
+            <span>Tekrar Oyna</span>
+          </button>
+          
+          <button 
+            onclick="printCertificate()" 
+            class="w-full sm:w-auto px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <i class="fa-solid fa-print"></i>
+            <span>Başarı Belgesini Yazdır</span>
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="border-t border-slate-900 bg-slate-950 py-4 text-center text-xs text-slate-500">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <p>Türkiye Yüzyılı Maarif Modeli (TYMM) 6. Sınıf Matematik Müfredatına Uygundur.</p>
+      <div class="flex items-center gap-3 text-slate-400">
+        <span>Tek Dosya HTML</span>
+        <span>•</span>
+        <span>Asal Şifre Avcıları © 2026</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    class SoundEngine {
+      constructor() {
+        this.enabled = true;
+        this.ctx = null;
+      }
+
+      initContext() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) {
+            this.ctx = new AudioContext();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      playTone(freq, type = 'sine', duration = 0.15, gainVal = 0.1) {
+        if (!this.enabled) return;
+        this.initContext();
+        if (!this.ctx) return;
+
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          
+          gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          osc.start();
+          osc.stop(this.ctx.currentTime + duration);
+        } catch (e) {}
+      }
+
+      playClick() { this.playTone(600, 'triangle', 0.05, 0.05); }
+      playPop() { this.playTone(400, 'sine', 0.08, 0.08); }
+      playCorrect() {
+        this.playTone(523.25, 'triangle', 0.12, 0.1);
+        setTimeout(() => this.playTone(659.25, 'triangle', 0.15, 0.1), 80);
+        setTimeout(() => this.playTone(783.99, 'triangle', 0.25, 0.1), 160);
+      }
+      playWrong() {
+        this.playTone(220, 'sawtooth', 0.18, 0.12);
+        setTimeout(() => this.playTone(180, 'sawtooth', 0.25, 0.12), 120);
+      }
+      playVictory() {
+        const notes = [523.25, 659.25, 783.99, 1046.50];
+        notes.forEach((freq, idx) => {
+          setTimeout(() => this.playTone(freq, 'triangle', 0.25, 0.12), idx * 120);
+        });
+      }
+    }
+
+    const sound = new SoundEngine();
+
+    function toggleSound() {
+      sound.enabled = !sound.enabled;
+      const icon = document.getElementById('soundIcon');
+      if (sound.enabled) {
+        icon.className = 'fa-solid fa-volume-high';
+        sound.playClick();
+      } else {
+        icon.className = 'fa-solid fa-volume-xmark text-slate-500';
+      }
+    }
+
+    const gameState = {
+      playerName: 'Kaşif',
+      playerAvatar: '🚀',
+      score: 0,
+      hearts: 3,
+      correctCount: 0,
+      totalAnswered: 0,
+      hasCaught91Trap: false,
+      sieveDone: false,
+      gateIndex: 0,
+    };
+
+    function updateHeaderUI() {
+      document.getElementById('headerScore').textContent = gameState.score;
+      const heartsContainer = document.getElementById('headerHearts');
+      let heartsHtml = '';
+      for (let i = 0; i < 3; i++) {
+        if (i < gameState.hearts) {
+          heartsHtml += '<i class="fa-solid fa-heart text-rose-400"></i>';
+        } else {
+          heartsHtml += '<i class="fa-regular fa-heart text-slate-600"></i>';
+        }
+      }
+      heartsContainer.innerHTML = heartsHtml;
+      const gateHearts = document.getElementById('gateHeartsDisplay');
+      if (gateHearts) {
+        gateHearts.innerHTML = heartsHtml;
+      }
+    }
+
+    function addScore(amount) {
+      gameState.score += amount;
+      updateHeaderUI();
+    }
+
+    function selectAvatar(avatar) {
+      gameState.playerAvatar = avatar;
+      sound.playClick();
+      document.querySelectorAll('.avatar-opt').forEach(btn => {
+        if (btn.textContent.includes(avatar)) {
+          btn.classList.add('border-amber-400', 'active');
+          btn.classList.remove('border-transparent');
+        } else {
+          btn.classList.remove('border-amber-400', 'active');
+          btn.classList.add('border-transparent');
+        }
+      });
+    }
+
+    function showScreen(screenId) {
+      ['screenIntro', 'screenSieve', 'screenGate', 'screenResult'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+      });
+      const target = document.getElementById(screenId);
+      if (target) target.classList.remove('hidden');
+
+      const topStats = document.getElementById('topStats');
+      if (screenId === 'screenIntro') {
+        topStats.classList.add('hidden');
+      } else {
+        topStats.classList.remove('hidden');
+      }
+    }
+
+    function startGame() {
+      const nameInput = document.getElementById('playerNameInput');
+      if (nameInput && nameInput.value.trim() !== '') {
+        gameState.playerName = nameInput.value.trim();
+      }
+      sound.playCorrect();
+      showScreen('screenSieve');
+      initSieve();
+    }
+
+    let sieveNumbers = [];
+    let currentSieveStep = 1;
+    let autoSieveInterval = null;
+
+    const SIEVE_STEPS = [
+      {
+        step: 1,
+        prime: 1,
+        title: "1'i Ele (Asal Değildir)",
+        desc: "Asal sayılar 1'den büyüktür ve yalnızca iki farklı pozitif böleni vardır: 1 ve kendisi. 1 sayısının sadece 1 tane böleni olduğu için asal sayı kabul edilmez. İlk olarak 1'i eliyoruz!",
+        targetMultiples: [1]
+      },
+      {
+        step: 2,
+        prime: 2,
+        title: "2'yi Koru, 2'nin Katlarını Ele",
+        desc: "2 en küçük asal sayıdır ve ÇİFT olan yegâne (tek) asal sayıdır! 2'yi koruyoruz, ancak 2'den büyük tüm çift sayıları (4, 6, 8, ... 50) 2'ye tam bölündükleri için eliyoruz.",
+        targetMultiples: [4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50]
+      },
+      {
+        step: 3,
+        prime: 3,
+        title: "3'ü Koru, 3'ün Katlarını Ele",
+        desc: "3 bir asal sayıdır (yalnızca 1'e ve 3'e bölünür). 3'ü koruyoruz; henüz elenmemiş 3'ün katlarını (9, 15, 21, 27, 33, 39, 45) eliyoruz. Çift olan 6, 12 gibi katlar zaten 2'nin katı olarak elenmişti!",
+        targetMultiples: [9, 15, 21, 27, 33, 39, 45]
+      },
+      {
+        step: 4,
+        prime: 5,
+        title: "5'i Koru, 5'in Katlarını Ele",
+        desc: "5 bir asal sayıdır. 5'i koruyoruz; 5'in henüz elenmemiş katları olan 25 ve 35'i eliyoruz (10, 20, 30, 40, 50 zaten 2'nin katlarında elenmişti).",
+        targetMultiples: [25, 35]
+      },
+      {
+        step: 5,
+        prime: 7,
+        title: "7'yi Koru, 7'nin Katlarını Ele",
+        desc: "7 bir asal sayıdır. 7'yi koruyoruz; 7'nin 50'ye kadar henüz elenmemiş tek katı 49'dur ($7 \\times 7 = 49$). 49'u da eliyoruz!",
+        targetMultiples: [49]
+      }
+    ];
+
+    const PRIME_LIST_50 = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47];
+
+    function initSieve() {
+      currentSieveStep = 1;
+      sieveNumbers = [];
+      for (let i = 1; i <= 50; i++) {
+        sieveNumbers.push({
+          num: i,
+          status: 'idle',
+          eliminatedBy: null
+        });
+      }
+      renderSieveGrid();
+      updateSieveStepUI();
+    }
+
+    function renderSieveGrid() {
+      const grid = document.getElementById('sieveGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      let remaining = 0;
+
+      sieveNumbers.forEach(item => {
+        const btn = document.createElement('button');
+        btn.id = `sieve-cell-${item.num}`;
+        btn.className = getSieveCellClass(item);
+        btn.innerHTML = `<span>${item.num}</span>`;
+        btn.onclick = () => onUserClickSieveNumber(item.num);
+        grid.appendChild(btn);
+
+        if (item.status !== 'eliminated') {
+          remaining++;
+        }
+      });
+
+      document.getElementById('sieveRemainingCount').textContent = `Kalan: ${remaining} Sayı`;
+    }
+
+    function getSieveCellClass(item) {
+      const base = "h-10 sm:h-11 rounded-xl text-xs sm:text-sm font-mono font-bold transition-all duration-300 flex items-center justify-center cursor-pointer select-none ";
+      if (item.status === 'prime-final') {
+        return base + "bg-gradient-to-tr from-amber-400 to-amber-500 text-slate-950 prime-glow scale-105 border-2 border-amber-200 shadow-lg shadow-amber-400/50";
+      }
+      if (item.status === 'prime-active') {
+        return base + "bg-amber-400 text-slate-950 border-2 border-amber-300 scale-105 shadow-md shadow-amber-400/30";
+      }
+      if (item.status === 'eliminated') {
+        return base + "bg-slate-950/60 text-slate-600 line-through border border-slate-900 opacity-60";
+      }
+      return base + "bg-slate-800 text-slate-200 border border-slate-700/70 hover:border-amber-400/50 hover:bg-slate-700/70";
+    }
+
+    function updateSieveStepUI() {
+      const stepIdx = currentSieveStep - 1;
+      const stepInfo = SIEVE_STEPS[stepIdx];
+      const stepBadge = document.getElementById('currentStepBadge');
+      const stepExpl = document.getElementById('stepExplanation');
+      const nextBtn = document.getElementById('btnNextStep');
+      const completedActions = document.getElementById('sieveCompletedActions');
+
+      if (stepInfo) {
+        stepBadge.textContent = `Adım ${currentSieveStep}/5`;
+        stepExpl.innerHTML = `
+          <div class="font-bold text-amber-400 text-sm mb-1">${stepInfo.title}</div>
+          <p class="text-xs text-slate-300">${stepInfo.desc}</p>
+        `;
+        nextBtn.classList.remove('hidden');
+        completedActions.classList.add('hidden');
+      } else {
+        stepBadge.textContent = "Tamamlandı!";
+        stepBadge.className = "text-xs font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300";
+        stepExpl.innerHTML = `
+          <div class="font-bold text-emerald-400 text-base mb-1">
+            <i class="fa-solid fa-sparkles"></i> Mükemmel Keşif!
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            $7 \\times 7 = 49 \\le 50$ kuralına ulaştık. 7'den sonraki asal sayı $11$ olup $11 \\times 11 = 121 > 50$ olduğundan süzgeç sona ermiştir.
+            Geriye kalan parıldayan <strong>15 sayı</strong>, 1 ile 50 arasındaki tüm asal sayılardır!
+          </p>
+        `;
+        nextBtn.classList.add('hidden');
+        completedActions.classList.remove('hidden');
+      }
+    }
+
+    function executeCurrentStep() {
+      if (currentSieveStep > 5) return;
+      const stepInfo = SIEVE_STEPS[currentSieveStep - 1];
+      sound.playPop();
+
+      if (stepInfo.prime > 1) {
+        const primeItem = sieveNumbers.find(x => x.num === stepInfo.prime);
+        if (primeItem) primeItem.status = 'prime-active';
+      }
+
+      stepInfo.targetMultiples.forEach((targetNum, index) => {
+        setTimeout(() => {
+          const item = sieveNumbers.find(x => x.num === targetNum);
+          if (item) {
+            item.status = 'eliminated';
+            item.eliminatedBy = stepInfo.prime;
+            const cell = document.getElementById(`sieve-cell-${item.num}`);
+            if (cell) {
+              cell.className = getSieveCellClass(item);
+            }
+          }
+          sound.playTone(300 + index * 10, 'sine', 0.04, 0.03);
+        }, index * 40);
+      });
+
+      currentSieveStep++;
+      setTimeout(() => {
+        renderSieveGrid();
+        if (currentSieveStep > 5) {
+          finalizeSieve();
+        } else {
+          updateSieveStepUI();
+        }
+      }, stepInfo.targetMultiples.length * 40 + 100);
+    }
+
+    function finalizeSieve() {
+      sound.playVictory();
+      addScore(300);
+      gameState.sieveDone = true;
+
+      sieveNumbers.forEach(item => {
+        if (item.status !== 'eliminated') {
+          item.status = 'prime-final';
+        }
+      });
+      renderSieveGrid();
+      updateSieveStepUI();
+    }
+
+    function onUserClickSieveNumber(num) {
+      const item = sieveNumbers.find(x => x.num === num);
+      if (!item) return;
+
+      sound.playClick();
+
+      if (item.num === 1) {
+        item.status = (item.status === 'eliminated') ? 'idle' : 'eliminated';
+      } else if (PRIME_LIST_50.includes(item.num)) {
+        item.status = (item.status === 'prime-active') ? 'idle' : 'prime-active';
+      } else {
+        item.status = (item.status === 'eliminated') ? 'idle' : 'eliminated';
+      }
+      renderSieveGrid();
+    }
+
+    function toggleAutoSieve() {
+      const icon = document.getElementById('autoSieveIcon');
+      const text = document.getElementById('autoSieveText');
+      if (autoSieveInterval) {
+        clearInterval(autoSieveInterval);
+        autoSieveInterval = null;
+        icon.className = 'fa-solid fa-play';
+        text.textContent = 'Otomatik Adımla';
+      } else {
+        if (currentSieveStep > 5) resetSieve();
+        icon.className = 'fa-solid fa-pause';
+        text.textContent = 'Durdur';
+        executeCurrentStep();
+        autoSieveInterval = setInterval(() => {
+          if (currentSieveStep <= 5) {
+            executeCurrentStep();
+          } else {
+            clearInterval(autoSieveInterval);
+            autoSieveInterval = null;
+            icon.className = 'fa-solid fa-play';
+            text.textContent = 'Otomatik Adımla';
+          }
+        }, 1600);
+      }
+    }
+
+    function resetSieve() {
+      if (autoSieveInterval) {
+        clearInterval(autoSieveInterval);
+        autoSieveInterval = null;
+        document.getElementById('autoSieveIcon').className = 'fa-solid fa-play';
+        document.getElementById('autoSieveText').textContent = 'Otomatik Adımla';
+      }
+      initSieve();
+    }
+
+    function goToGateGame() {
+      sound.playCorrect();
+      showScreen('screenGate');
+      initGateGame();
+    }
+
+    const GATE_QUESTIONS = [
+      {
+        num: 37,
+        isPrime: true,
+        desc: "37 sadece 1'e ve kendisine kalansız bölünür. Başka hiçbir pozitif tam sayı böleni yoktur. Bu yüzden ASAL SAYIDIR!"
+      },
+      {
+        num: 51,
+        isPrime: false,
+        desc: "DİKKAT TUZAK! 51 asal DEĞİLDİR! Rakamları toplamı 5 + 1 = 6 (3'ün katı) olduğundan 3'e tam bölünür ($3 \\times 17 = 51$). Çoğu öğrenci tek sayı olduğu için karıştırır!"
+      },
+      {
+        num: 2,
+        isPrime: true,
+        desc: "2 ASAL SAYIDIR! 2 en küçük asal sayıdır ve ÇİFT olan yegâne (tek) asal sayıdır. 2'den başka çift asal sayı yoktur!"
+      },
+      {
+        num: 91,
+        isPrime: false,
+        desc: "MEŞHUR 91 TUZAĞI! 91 asal DEĞİLDİR! $7 \\times 13 = 91$ olduğu için hem 7'ye hem 13'e tam bölünür. Sınavların en ünlü çeldiricisidir!",
+        is91Trap: true
+      },
+      {
+        num: 1,
+        isPrime: false,
+        desc: "1 ASAL SAYI DEĞİLDİR! TYMM tanımına göre asal sayıların 1 ve kendisi olmak üzere tam 2 farklı pozitif böleni olmalıdır. 1 sayısının tek bir böleni (1) vardır."
+      },
+      {
+        num: 23,
+        isPrime: true,
+        desc: "23 ASAL SAYIDIR! Yalnızca 1'e ve 23'e tam bölünür."
+      },
+      {
+        num: 57,
+        isPrime: false,
+        desc: "57 asal DEĞİLDİR! Rakamları toplamı 5 + 7 = 12'dir ve 3'ün katıdır. $3 \\times 19 = 57$ olduğundan 3'e ve 19'a bölünür."
+      },
+      {
+        num: 41,
+        isPrime: true,
+        desc: "41 ASAL SAYIDIR! Sadece 1 ve 41 çarpanlarına sahiptir."
+      },
+      {
+        num: 87,
+        isPrime: false,
+        desc: "87 asal DEĞİLDİR! Rakamları toplamı 8 + 7 = 15 olup 3'ün katıdır. $3 \\times 29 = 87$ eder."
+      },
+      {
+        num: 79,
+        isPrime: true,
+        desc: "79 ASAL SAYIDIR! Kendisinden ve 1'den başka böleni yoktur."
+      },
+      {
+        num: 39,
+        isPrime: false,
+        desc: "39 asal DEĞİLDİR! $3 \\times 13 = 39$ olup 3'e ve 13'e bölünür."
+      },
+      {
+        num: 97,
+        isPrime: true,
+        desc: "97 ASAL SAYIDIR! İki basamaklı en büyük asal sayıdır!"
+      },
+      {
+        num: 63,
+        isPrime: false,
+        desc: "63 asal DEĞİLDİR! Rakamları toplamı 9 olup hem 3'e hem 9'a hem de 7'ye bölünür ($7 \\times 9 = 63$)."
+      },
+      {
+        num: 47,
+        isPrime: true,
+        desc: "47 ASAL SAYIDIR! 1'den 50'ye kadar olan asal sayılar kümesinin son elemanıdır."
+      },
+      {
+        num: 77,
+        isPrime: false,
+        desc: "77 asal DEĞİLDİR! $7 \\times 11 = 77$ olduğundan 7 ve 11'e bölünür."
+      }
+    ];
+
+    function initGateGame() {
+      gameState.gateIndex = 0;
+      gameState.hearts = 3;
+      gameState.correctCount = 0;
+      gameState.totalAnswered = 0;
+      updateHeaderUI();
+      renderCurrentGateQuestion();
+    }
+
+    function renderCurrentGateQuestion() {
+      const q = GATE_QUESTIONS[gameState.gateIndex];
+      if (!q) {
+        finishGame();
+        return;
+      }
+
+      document.getElementById('gateLevelDisplay').textContent = `${gameState.gateIndex + 1} / ${GATE_QUESTIONS.length}`;
+      document.getElementById('targetNumber').textContent = q.num;
+      document.getElementById('gateLockIcon').className = 'fa-solid fa-lock';
+      
+      const progressPercent = ((gameState.gateIndex + 1) / GATE_QUESTIONS.length) * 100;
+      document.getElementById('gateProgressBar').style.width = `${progressPercent}%`;
+
+      document.getElementById('gateActionButtons').classList.remove('hidden');
+      document.getElementById('gateFeedbackPanel').classList.add('hidden');
+    }
+
+    function makeDecision(userChosePrime) {
+      const q = GATE_QUESTIONS[gameState.gateIndex];
+      const isCorrect = (userChosePrime === q.isPrime);
+      gameState.totalAnswered++;
+
+      const actionButtons = document.getElementById('gateActionButtons');
+      const feedbackPanel = document.getElementById('gateFeedbackPanel');
+      const statusIcon = document.getElementById('feedbackStatusIcon');
+      const statusTitle = document.getElementById('feedbackStatusTitle');
+      const explanation = document.getElementById('feedbackExplanation');
+      const lockIcon = document.getElementById('gateLockIcon');
+      const card = document.getElementById('gateCard');
+
+      actionButtons.classList.add('hidden');
+      feedbackPanel.classList.remove('hidden');
+
+      if (isCorrect) {
+        sound.playCorrect();
+        gameState.correctCount++;
+        addScore(100);
+        lockIcon.className = 'fa-solid fa-lock-open text-emerald-400';
+        
+        statusIcon.className = 'fa-solid fa-circle-check text-emerald-400';
+        statusTitle.textContent = 'Tebrikler! Doğru Karar (+100 Puan)';
+        statusTitle.className = 'font-bold text-sm text-emerald-400';
+        feedbackPanel.className = 'mt-6 text-left max-w-lg mx-auto bg-emerald-950/40 border border-emerald-500/30 rounded-2xl p-4 sm:p-5 transition-all';
+
+        if (q.is91Trap) {
+          gameState.hasCaught91Trap = true;
+        }
+      } else {
+        sound.playWrong();
+        gameState.hearts--;
+        updateHeaderUI();
+        lockIcon.className = 'fa-solid fa-triangle-exclamation text-rose-400';
+        card.classList.add('shake-anim');
+        setTimeout(() => card.classList.remove('shake-anim'), 400);
+
+        statusIcon.className = 'fa-solid fa-circle-xmark text-rose-400';
+        statusTitle.textContent = 'Yanlış Karar! Kilit Açılmadı (1 Can Kaybettin)';
+        statusTitle.className = 'font-bold text-sm text-rose-400';
+        feedbackPanel.className = 'mt-6 text-left max-w-lg mx-auto bg-rose-950/40 border border-rose-500/30 rounded-2xl p-4 sm:p-5 transition-all';
+      }
+
+      explanation.textContent = q.desc;
+
+      if (gameState.hearts <= 0) {
+        document.getElementById('feedbackNextBtn').innerHTML = '<span>Canlar Tükendi - Sonuçları Gör</span> <i class="fa-solid fa-flag-checkered"></i>';
+      } else if (gameState.gateIndex + 1 >= GATE_QUESTIONS.length) {
+        document.getElementById('feedbackNextBtn').innerHTML = '<span>Tüm Kilitler Açıldı - Sonucu Gör</span> <i class="fa-solid fa-trophy"></i>';
+      } else {
+        document.getElementById('feedbackNextBtn').innerHTML = '<span>Sıradaki Kilit</span> <i class="fa-solid fa-arrow-right"></i>';
+      }
+    }
+
+    function nextGateQuestion() {
+      sound.playClick();
+      if (gameState.hearts <= 0 || gameState.gateIndex + 1 >= GATE_QUESTIONS.length) {
+        finishGame();
+      } else {
+        gameState.gateIndex++;
+        renderCurrentGateQuestion();
+      }
+    }
+
+    function finishGame() {
+      sound.playVictory();
+      showScreen('screenResult');
+
+      const nameEl = document.getElementById('resultPlayerName');
+      nameEl.textContent = `${gameState.playerAvatar} ${gameState.playerName}`;
+
+      document.getElementById('resultTotalScore').textContent = gameState.score;
+      
+      const accuracy = gameState.totalAnswered > 0 
+        ? Math.round((gameState.correctCount / gameState.totalAnswered) * 100) 
+        : 100;
+      document.getElementById('resultAccuracy').textContent = `${accuracy}%`;
+      document.getElementById('resultHearts').textContent = `${gameState.hearts}/3`;
+
+      const badgesContainer = document.getElementById('badgesContainer');
+      badgesContainer.innerHTML = '';
+
+      const badges = [
+        {
+          id: 'badge-explorer',
+          title: 'Asal Kaşifi',
+          desc: 'Asal sayılar yolculuğuna başlayıp ilk adımı attı.',
+          icon: 'fa-compass',
+          earned: true,
+        },
+        {
+          id: 'badge-sieve',
+          title: 'Eratosthenes Ustası',
+          desc: '1-50 arası sayı süzgecini başarıyla tamamladı.',
+          icon: 'fa-filter',
+          earned: gameState.sieveDone,
+        },
+        {
+          id: 'badge-trap',
+          title: '91 Tuzağı Avcısı',
+          desc: '7x13=91 bileşik sayısının tuzağına düşmedi!',
+          icon: 'fa-crosshairs',
+          earned: gameState.hasCaught91Trap,
+        },
+        {
+          id: 'badge-guard',
+          title: 'TYMM Matematik Muhafızı',
+          desc: 'Zorlu kilitlerde %70 üzeri doğruluk elde etti.',
+          icon: 'fa-shield-halved',
+          earned: accuracy >= 70,
+        }
+      ];
+
+      badges.forEach(b => {
+        const item = document.createElement('div');
+        if (b.earned) {
+          item.className = 'p-3 rounded-xl bg-slate-900 border border-amber-500/30 flex items-center gap-3';
+          item.innerHTML = `
+            <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center text-sm font-bold shrink-0">
+              <i class="fa-solid ${b.icon}"></i>
+            </div>
+            <div>
+              <div class="font-bold text-slate-100">${b.title}</div>
+              <div class="text-[10px] text-slate-400">${b.desc}</div>
+            </div>
+          `;
+        } else {
+          item.className = 'p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center gap-3 opacity-50';
+          item.innerHTML = `
+            <div class="w-8 h-8 rounded-lg bg-slate-800 text-slate-500 flex items-center justify-center text-sm font-bold shrink-0">
+              <i class="fa-solid fa-lock"></i>
+            </div>
+            <div>
+              <div class="font-bold text-slate-400">${b.title} (Kilitli)</div>
+              <div class="text-[10px] text-slate-600">${b.desc}</div>
+            </div>
+          `;
+        }
+        badgesContainer.appendChild(item);
+      });
+    }
+
+    function restartGame() {
+      sound.playClick();
+      gameState.score = 0;
+      gameState.hearts = 3;
+      gameState.correctCount = 0;
+      gameState.totalAnswered = 0;
+      gameState.hasCaught91Trap = false;
+      gameState.sieveDone = false;
+      gameState.gateIndex = 0;
+      updateHeaderUI();
+      showScreen('screenIntro');
+    }
+
+    function printCertificate() {
+      window.print();
+    }
+
+    // --- TEK DOSYA ÇEVRİMDIŞI HTML İNDİRME İŞLEVİ ---
+    function downloadGameHTML() {
+      sound.playClick();
+      // Önce sunucudaki temiz index.html veya public dosyasını çekmeyi dene, çevrimdışı ise mevcut DOM'dan blob üret
+      fetch('/index.html')
+        .then(res => {
+          if (!res.ok) throw new Error('Ağ yanıtı alınamadı');
+          return res.text();
+        })
+        .then(html => {
+          triggerBlobDownload(html, 'index.html');
+        })
+        .catch(() => {
+          const fullDoc = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+          triggerBlobDownload(fullDoc, 'index.html');
+        });
+    }
+
+    function triggerBlobDownload(text, filename) {
+      const blob = new Blob([text], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      updateHeaderUI();
+    });
+  </script>
+</body>
+</html>
+
